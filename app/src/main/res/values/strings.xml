@@ -91,4 +91,5 @@
     <string name="image2_description">Cookies</string>
     <string name="image3_description">Cake</string>
     <string name="results_placeholder">(Results will appear here)</string>
+    <string name="test_nose">nose</string>
 </resources>

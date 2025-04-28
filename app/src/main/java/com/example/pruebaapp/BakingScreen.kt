@@ -1,34 +1,21 @@
 package com.example.pruebaapp
 
-import android.graphics.BitmapFactory
 import android.net.Uri
-import android.util.Log
-import android.widget.Toast
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowForward
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -36,6 +23,7 @@ import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -51,40 +39,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.rememberAsyncImagePainter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-
-val images = arrayOf(
-
-  R.drawable.bache_no_1,
-
-  R.drawable.bache_si_1,
-
-  R.drawable.animal_si_1,
-
-  R.drawable.animal_no_1,
-
-  R.drawable.animal_si_2,
-
-  R.drawable.infraestructura_si_1,
-
-  R.drawable.infraestructura_si_2,
-
-  R.drawable.basura_si_1,
-
-  R.drawable.desmonte_si_1,
-
-  R.drawable.buzon_si_1,
-
-  R.drawable.buzon_si_2,
-
-)
 
 val options = arrayOf(
   R.string.option_prompt_animal,
@@ -109,17 +71,17 @@ fun BakingScreen(
   modifier: Modifier = Modifier,
   bakingViewModel: BakingViewModel = viewModel()
 ) {
-  var selectedImage by remember { mutableIntStateOf(0) }
+
   var selectedOption by rememberSaveable { mutableIntStateOf(0) }
   val prompt = stringResource(prompts[selectedOption])
-  val placeholderResult = stringResource(R.string.results_placeholder)
-  var result by rememberSaveable { mutableStateOf(placeholderResult) }
+  var result by rememberSaveable { mutableStateOf("") }
   val uiState by bakingViewModel.uiState.collectAsState()
   val imageState by bakingViewModel.imageState.collectAsState()
   var imageUri: Uri? by rememberSaveable { mutableStateOf(null) }
   val context = LocalContext.current
   val focusManager: FocusManager = LocalFocusManager.current
   val scope: CoroutineScope = rememberCoroutineScope()
+
   val photoLauncher: ManagedActivityResultLauncher<Uri, Boolean> =
     rememberLauncherForActivityResult(
       contract = ActivityResultContracts.TakePicture(), // Contract to take picture
@@ -151,21 +113,33 @@ fun BakingScreen(
 
 
 
+
   Column(
-    modifier = modifier
+    modifier = modifier.padding(vertical = 10.dp, horizontal = 20.dp)
   ) {
     Text(
       text = stringResource(R.string.baking_title),
       style = MaterialTheme.typography.titleMedium,
-      modifier = Modifier.padding(top = 40.dp, bottom = 20.dp)
+      modifier = Modifier.padding(top = 60.dp, bottom = 20.dp)
     )
 
-    ImagesList(
-      modifier = Modifier.fillMaxWidth().padding(bottom = 20.dp),
-      images = images,
-      selectedImage  = selectedImage,
-      onSelectImage = { index -> selectedImage = index }
-    )
+    if ( imageState.photoUris != null){
+      ImageElement(
+        image = imageState.photoUris!!,
+        modifier = Modifier
+          .requiredSize(280.dp)
+          .padding(bottom = 20.dp)
+          .align(Alignment.CenterHorizontally)
+      )
+    }
+
+
+//    ImagesList(
+//      modifier = Modifier.fillMaxWidth().padding(bottom = 20.dp),
+//      images = images,
+//      selectedImage  = selectedImage,
+//      onSelectImage = { index -> selectedImage = index }
+//    )
 
     ElevatedButton(
       enabled = true,
@@ -187,91 +161,154 @@ fun BakingScreen(
     )
 
     Button(
-      onClick = {
-        val bitmap = BitmapFactory.decodeResource(
-          context.resources,
-          images[selectedImage]
-        )
+      onClick = onclick@{
+        val bitmap = bakingViewModel.uriToBitmap(context,imageState.photoUris)
+        if (bitmap == null) return@onclick
         bakingViewModel.sendPrompt(bitmap, prompt)
       },
       enabled = prompt.isNotEmpty(),
       modifier = Modifier.align(Alignment.CenterHorizontally)
     ) {
-      Icon(
-        imageVector = Icons.Filled.PlayArrow,
-        contentDescription = stringResource(R.string.action_label)
-      )
+      if (uiState is UiState.Loading) {
+        CircularProgressIndicator(
+          modifier = Modifier.padding(end = 8.dp).size(24.dp),
+          color = MaterialTheme.colorScheme.onPrimary)
+      }
+      else{
+        Icon(
+          imageVector = Icons.Filled.PlayArrow,
+          contentDescription = stringResource(R.string.action_label)
+        )
+      }
+
       Text(text = stringResource(R.string.action_label))
     }
 
 
-    if (uiState is UiState.Loading) {
-      CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
-    }
-    else {
-      var textColor = MaterialTheme.colorScheme.onSurface
+    if (uiState !is UiState.Loading) {
+
+      var typeColor = MaterialTheme.colorScheme.onSurface
+
       if (uiState is UiState.Error) {
-        textColor = MaterialTheme.colorScheme.error
+        typeColor = MaterialTheme.colorScheme.error
         result = (uiState as UiState.Error).errorMessage
       } else if (uiState is UiState.Success) {
-        textColor = MaterialTheme.colorScheme.onSurface
+        typeColor = MaterialTheme.colorScheme.onSurface
         result = (uiState as UiState.Success).outputText
       }
-      val scrollState = rememberScrollState()
-      Text(
-        text = result,
-        textAlign = TextAlign.Start,
-        color = textColor,
-        modifier = Modifier
-          .align(Alignment.CenterHorizontally)
-          .padding(16.dp)
-          .fillMaxSize()
-          .verticalScroll(scrollState)
-      )
+
+      if ( uiState !is UiState.Initial){
+
+        if (result.isBlank()) return
+
+        val optionsProm = stringResource(options[selectedOption])
+
+        result = result
+          .trimEnd('\n', '\r')
+          .trimStart()
+
+        result = when {
+          result.equals("no", ignoreCase = true) ->
+             "La imagen no corresponde a la categoría $optionsProm"
+          result.equals("sí", ignoreCase = true) || result.equals("si", ignoreCase = true) ->
+            "¡Correcto! La imagen pertenece a la categoría $optionsProm"
+          else -> result
+        }
+        ModalCustom(
+          text = result,
+        )
+
+      }
+
     }
 
   }
+}
+
+
+//@Composable
+//fun ImagesList(
+//  images: Array<Int>,
+//  modifier: Modifier = Modifier,
+//  selectedImage: Int = 0,
+//  onSelectImage : (Int) -> Unit = {},
+//){
+//  LazyRow(
+//    modifier = modifier
+//  ) {
+//    itemsIndexed(images) { index, image ->
+//      var imageModifier = Modifier
+//        .padding(start = 8.dp, end = 8.dp)
+//        .requiredSize(200.dp)
+//        .clickable {
+//          onSelectImage(index)
+//        }
+//      if (index == selectedImage) {
+//        imageModifier =
+//          imageModifier.border(BorderStroke(4.dp, MaterialTheme.colorScheme.primary))
+//      }
+//      Image(
+//        painter = painterResource(image),
+//        contentDescription = "",
+//        modifier = imageModifier
+//      )
+//    }
+//  }
+//}
+
+@Composable
+fun MainScreen(
+  modifier: Modifier = Modifier
+){
+
 }
 
 
 @Composable
-fun ImagesList(
-  images: Array<Int>,
+fun ModalCustom(
   modifier: Modifier = Modifier,
-  selectedImage: Int = 0,
-  onSelectImage : (Int) -> Unit = {},
-){
-  LazyRow(
-    modifier = modifier
-  ) {
-    itemsIndexed(images) { index, image ->
-      var imageModifier = Modifier
-        .padding(start = 8.dp, end = 8.dp)
-        .requiredSize(200.dp)
-        .clickable {
-          onSelectImage(index)
+  text: String = ""
+) {
+  var auxShow by remember { mutableStateOf(true) }
+
+  if (auxShow) {
+    Dialog(onDismissRequest = { auxShow = false }) {
+      Surface(
+        shape = MaterialTheme.shapes.medium,
+        tonalElevation = 8.dp,
+      ) {
+        Column(
+          modifier = Modifier.padding(25.dp)
+        ) {
+          Text(
+            text = text,
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.align(Alignment.CenterHorizontally),
+          )
+
+          Spacer(modifier = Modifier.height(16.dp))
+
+          Button(
+            modifier = Modifier.align(Alignment.CenterHorizontally),
+            onClick ={ auxShow = false }
+          ) {
+            Text("Close")
+          }
         }
-      if (index == selectedImage) {
-        imageModifier =
-          imageModifier.border(BorderStroke(4.dp, MaterialTheme.colorScheme.primary))
       }
-      Image(
-        painter = painterResource(image),
-        contentDescription = "",
-        modifier = imageModifier
-      )
     }
   }
 }
+
 
 
 @Composable
 fun ImageElement(
   modifier: Modifier = Modifier,
-  image: Int,
+  image: Uri
 ){
   Image(
-    painter = painterResource(image),
+    painter = rememberAsyncImagePainter(image),
     contentDescription = "",
     modifier = modifier
   )
@@ -317,7 +354,6 @@ fun Option(
       text = stringResource(option)
     )
   }
-
 
 }
 

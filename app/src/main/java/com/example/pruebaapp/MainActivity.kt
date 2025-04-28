@@ -18,7 +18,7 @@ class MainActivity : ComponentActivity() {
       PruebaAppTheme {
         // A surface container using the 'background' color from the theme
         Surface(
-          modifier = Modifier.fillMaxSize().padding(top = 30.dp),
+          modifier = Modifier.fillMaxSize(),
           color = MaterialTheme.colorScheme.background,
         ) {
           BakingScreen()
