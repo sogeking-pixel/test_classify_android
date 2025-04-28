@@ -1,0 +1,94 @@
+<resources>
+    <string name="app_name">PruebaApp</string>
+    <string name="action_label">Process</string>
+    <string name="baking_title">Classify Imagen With Gemini 2.0 Flash</string>
+    <string name="label_prompt">Prompt</string>
+    <string name="take_photos">Take Photo</string>
+
+    <string name="option_prompt_animal">Maltrato Animal</string>
+    <string name="option_prompt_arbol">Podar un Arbol</string>
+    <string name="option_prompt_alcantarillado">Alcantarillado</string>
+    <string name="option_prompt_basura">Basura o Desmonte</string>
+    <string name="option_prompt_pista">Pista en mal estado</string>
+    <string name="option_prompt_infraestructura">Infraestructura Peligrosa</string>
+
+    <string name="prompt_placeholder">Provide a recipe for the baked goods in the image</string>
+    <string name="prompt_arbol">
+        Analiza la imagen proporcionada y responde únicamente “Sí” o “No” según los siguientes criterios:
+1. ¿La imagen muestra una arbol o una estructura similar?
+   - Si NO es una arbol o una estructura similar? (por ejemplo: persona, vehículo u otro objeto), responde: No
+   - Si SÍ es una arbol o una estructura similar?, continúa al criterio 2
+2. Si la respuesta fue “Sí”, evalúa si es necesario podarlo:
+   - Si es necesario podarlo, responde: Sí
+   - Si no es necesario podarlo, responde: No
+**Instrucciones adicionales:**
+- No incluyas ninguna explicación, comentario ni formato extra.
+- La única salida válida es “Sí” o “No”, no incluyas ninguna explicación, comentario ni formato extra, ademas uno de las dos opcciones, nada que las dos.
+    </string>
+
+    <string name="prompt_maltrato">
+        Analiza la imagen proporcionada y responde únicamente “Sí” o “No” según los siguientes criterios:
+1. ¿La imagen muestra una mascota o un animal maltrato?
+   - Si NO es una mascota o un animal maltrato? (por ejemplo: vehículo u otro objeto), responde: No
+   - Si SÍ es una mascota o un animal maltrato?, continúa al criterio 2
+2. Si la respuesta fue “Sí”, evalúa si el estado del animal es de maltrato:
+   - Si es el animal se ecuentra en maltrato, responde: Sí
+   - Si no es el animal se ecuentra en maltrato, responde: No
+**Instrucciones adicionales:**
+- No incluyas ninguna explicación, comentario ni formato extra.
+- La única salida válida es “Sí” o “No”, no incluyas ninguna explicación, comentario ni formato extra, ademas uno de las dos opcciones, nada que las dos.
+    </string>
+
+    <string name="prompt_alcantarillado">
+        Analiza la imagen proporcionada y responde únicamente “Sí” o “No” según los siguientes criterios:
+1. ¿La imagen muestra una fuga de alcantarillado, buzon abierto o una estructura similar?
+   - Si NO es una fuga de alcantarillado, buzon abierto o una estructura similar? (por ejemplo: vehículo u otro objeto), responde: No
+   - Si SÍ es una fuga de alcantarillado, buzon abierto o una estructura similar?, continúa al criterio 2
+2. Si la respuesta fue “Sí”, evalúa si el estado del alcantarillado es de fuga o buzon abierto:
+   - Si el alcantarillado se ecuentra en fuga o buzon abierto, responde: Sí
+   - Si el alcantarillado no se ecuentra abierto, o no hay buzon abierto, osea ningun problema con el alcantarillado, responde: No
+**Instrucciones adicionales:**
+- No incluyas ninguna explicación, comentario ni formato extra.
+- La única salida válida es “Sí” o “No”, no incluyas ninguna explicación, comentario ni formato extra, ademas uno de las dos opcciones, nada que las dos.
+    </string>
+    <string name="prompt_basura">
+        Analiza la imagen proporcionada y responde únicamente “Sí” o “No” según los siguientes criterios:
+1. ¿La imagen muestra acomulacion de basura?
+   - Si NO es acomulacion de basura? (por ejemplo: vehículo u otro objeto, o que se vea que no es acomulacion de basura), responde: No
+        - si SÍ es acomulacion de basura?, continúa al criterio 2
+2. Si la respuesta fue “Sí”, evalúa si la acomulacion de basura se encuentra en la calle o no:
+   - Si la acomulacion de basura se encuentra en la calle, responde: Sí
+   - Si la acomulacion de basura no se encuentra en la calle(Como es en su casa, o un sitio de basura), responde: No
+**Instrucciones adicionales:**
+- No incluyas ninguna explicación, comentario ni formato extra.
+- La única salida válida es “Sí” o “No”, no incluyas ninguna explicación, comentario ni formato extra, ademas uno de las dos opcciones, nada que las dos.
+    </string>
+    <string name="prompt_pista">
+        Analiza la imagen proporcionada y responde únicamente “Sí” o “No” según los siguientes criterios:
+1. ¿La imagen muestra una pista?
+   - Si NO es una pista? (por ejemplo: vehículo u otro objeto, o que se enfoca mas en otra objecto que no sea una pista), responde: No
+        - si SÍ es una pista?, continúa al criterio 2
+2. Si la respuesta fue “Sí”, evalúa si la pista se encuentra en mal estado o no:
+   - Si la pista se encuentra en mal estado y necesita un mantenimiento de urgencia, responde: Sí
+   - Si la pista no se encuentra en mal estado o no es necesario un mantenimiento de urgencia, responde: No
+**Instrucciones adicionales:**
+- No incluyas ninguna explicación, comentario ni formato extra.
+- La única salida válida es “Sí” o “No”, no incluyas ninguna explicación, comentario ni formato extra, ademas uno de las dos opcciones, nada que las dos.
+    </string>
+    <string name="prompt_infraestructura">
+        Analiza la imagen proporcionada y responde únicamente “Sí” o “No” según los siguientes criterios:
+1. ¿La imagen muestra una infraestructura?
+   - Si NO es una infraestructura? (por ejemplo: vehículo u otro objeto, o que se enfoca mas en otra objecto que no sea una infraestructura), responde: No
+        - si SÍ es una infraestructura?, continúa al criterio 2
+2. Si la respuesta fue “Sí”, evalúa si la infraestructura es peligrosa para personas:
+   - Si la infraestructura es peligrosa y riesgosa para la integridad y salud de las personas, responde: Sí
+   - Si la infraestructura no es peligrosa para personas, o no es riesgosa para la integridad y salud de las personas, responde: No
+**Instrucciones adicionales:**
+- No incluyas ninguna explicación, comentario ni formato extra.
+- La única salida válida es “Sí” o “No”, no incluyas ninguna explicación, comentario ni formato extra, ademas uno de las dos opcciones, nada que las dos.
+    </string>
+    <string name="image1_description">Cupcake</string>
+    <string name="image2_description">Cookies</string>
+    <string name="image3_description">Cake</string>
+    <string name="results_placeholder">(Results will appear here)</string>
+</resources>
