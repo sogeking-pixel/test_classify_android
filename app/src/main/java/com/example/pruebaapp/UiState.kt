@@ -11,14 +11,20 @@ sealed interface UiState {
   object Initial : UiState
 
   /**
-   * Still loading
+   * Still loading with tensorflow
    */
-  object Loading : UiState
+  object LoadingTensorFlow : UiState
 
   /**
-   * Text has been generated
+   * scale numeric value between 0 and 1
    */
-  data class Success(val outputText: String) : UiState
+  data class SuccessTensorFlow(val outputText: String, val outputScale: Float) : UiState
+
+  /**
+   * Still loading with geminis
+   */
+  object LoadingGeminis : UiState
+  data class SuccessGeminis(val outputText: String) : UiState
 
   /**
    * There was an error generating text

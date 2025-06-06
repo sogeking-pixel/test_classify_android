@@ -1,9 +1,12 @@
 package com.example.pruebaapp
 
+import android.graphics.Bitmap
 import android.net.Uri
 import androidx.activity.compose.ManagedActivityResultLauncher
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.core.copy
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -28,6 +31,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,6 +51,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import kotlin.math.log
 
 val options = arrayOf(
   R.string.option_prompt_animal,
@@ -164,15 +169,27 @@ fun BakingScreen(
       onClick = onclick@{
         val bitmap = bakingViewModel.uriToBitmap(context,imageState.photoUris)
         if (bitmap == null) return@onclick
-        bakingViewModel.sendPrompt(bitmap, prompt)
+        val convertedBitmap: Bitmap
+        if (bitmap.config != Bitmap.Config.ARGB_8888) {
+          convertedBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true)
+          // 'true' makes the new bitmap mutable. You can set it to 'false'
+          // if you don't need to modify it further.
+        } else {
+          convertedBitmap = bitmap // No conversion needed
+        }
+
+
+        bakingViewModel.analizeImage(convertedBitmap,context)
       },
       enabled = prompt.isNotEmpty(),
       modifier = Modifier.align(Alignment.CenterHorizontally)
     ) {
-      if (uiState is UiState.Loading) {
+      if (uiState is UiState.LoadingTensorFlow) {
         CircularProgressIndicator(
           modifier = Modifier.padding(end = 8.dp).size(24.dp),
-          color = MaterialTheme.colorScheme.onPrimary)
+          color = MaterialTheme.colorScheme.onPrimary
+        )
+        Log.d("ModalCustom", "uistate is loaging")
       }
       else{
         Icon(
@@ -185,20 +202,21 @@ fun BakingScreen(
     }
 
 
-    if (uiState !is UiState.Loading) {
+    if (uiState !is UiState.LoadingTensorFlow) {
+      Log.d("ModalCustom", "uistate is not loading")
 
       var typeColor = MaterialTheme.colorScheme.onSurface
 
       if (uiState is UiState.Error) {
         typeColor = MaterialTheme.colorScheme.error
         result = (uiState as UiState.Error).errorMessage
-      } else if (uiState is UiState.Success) {
+      } else if (uiState is UiState.SuccessTensorFlow) {
         typeColor = MaterialTheme.colorScheme.onSurface
-        result = (uiState as UiState.Success).outputText
+        result = (uiState as UiState.SuccessTensorFlow).outputText
       }
 
-      if ( uiState !is UiState.Initial){
-
+      if ( uiState !is UiState.Initial ){
+        Log.d("ModalCustom", "uistate is SuccessTensorFlow")
         if (result.isBlank()) return
 
         val optionsProm = stringResource(options[selectedOption])
@@ -214,12 +232,18 @@ fun BakingScreen(
             "¡Correcto! La imagen pertenece a la categoría $optionsProm"
           else -> result
         }
-        ModalCustom(
-          text = result,
-        )
+        key(uiState){
+          ModalCustom(
+            text = result,
+          )
+        }
+
 
       }
 
+    }
+    else{
+      Log.d("ModalCustom", "uistate is loaging 2")
     }
 
   }
@@ -271,7 +295,9 @@ fun ModalCustom(
 ) {
   var auxShow by remember { mutableStateOf(true) }
 
+  Log.d("ModalCustom", "entro a model custom with status: $auxShow")
   if (auxShow) {
+    Log.d("ModalCustom", "this show modal xddx")
     Dialog(onDismissRequest = { auxShow = false }) {
       Surface(
         shape = MaterialTheme.shapes.medium,
@@ -293,10 +319,12 @@ fun ModalCustom(
             onClick ={ auxShow = false }
           ) {
             Text("Close")
+
           }
         }
       }
     }
+
   }
 }
 
